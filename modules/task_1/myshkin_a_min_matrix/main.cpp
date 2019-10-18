@@ -77,8 +77,8 @@ TEST(Parallel_Min_Matrix_MPI, Test_With_Small_Matrix) {
 
 
 TEST(Parallel_Min_Matrix_MPI, Test_With_Given_Matrix) {
- int rank;
- MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   const int rows_matrix_size = 3;
   const int cols_matrix_size = 3;
   std::vector<int> matrix(rows_matrix_size * cols_matrix_size);
