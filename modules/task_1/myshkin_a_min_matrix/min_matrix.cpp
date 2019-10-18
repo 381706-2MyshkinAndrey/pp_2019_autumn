@@ -1,7 +1,8 @@
 // Copyright 2019 Myshkin Andrew
 #include <mpi.h>
-#include <vector>
 #include <random>
+#include <vector>
+#include <stdexcept>
 #include <ctime>
 #include <algorithm>
 #include "../../../modules/task_1/myshkin_a_min_matrix/min_matrix.h"
@@ -32,7 +33,7 @@ std::vector<int> getRandomMatrix(int m, int n) {
 
 
 int getSequentialMinMatrix(const std::vector<int> miv, int rows, int cols) {
-  if (static_cast<unsigned int>(miv.size()) != rows * cols)
+  if (static_cast<int>(miv.size()) != rows * cols)
     throw std::runtime_error("Matrix dimensions are incorrect");
   int sizem = rows * cols;
   int min = miv[0];
@@ -47,7 +48,6 @@ int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols) {
   int size, rank;
   int result = 0;
   int min;
-  int error = 0;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -68,7 +68,7 @@ int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols) {
 
 
   if (rank == 0) {
-    if (static_cast<unsigned int>(miv.size()) != rows * cols) {
+    if (static_cast<int>(miv.size()) != rows * cols) {
       int error = -1;
       for (int proc = 1; proc < size; proc++)
         MPI_Send(&error, 1, MPI_INT, proc, -1, MPI_COMM_WORLD);
