@@ -1,0 +1,14 @@
+// Copyright 2019 Myshkin Andrew
+#ifndef MODULES_TASK_1_MYSHKIN_A_MIN_MATRIX_MIN_MATRIX_H_
+#define MODULES_TASK_1_MYSHKIN_A_MIN_MATRIX_MIN_MATRIX_H_
+
+#include <vector>
+#include <mpi.h>
+
+std::vector<int> getConsistentMatrix(int m, int n);
+std::vector<int> getRandomMatrix(int m, int n);
+//int getSequentialMinVector(const std::vector<int> vect, const int n);
+int getSequentialMinMatrix(const std::vector<int> miv, int rows, int cols); // miv - matrix in vector
+int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols);
+
+#endif // MODULES_TASK_1_MYSHKIN_A_MIN_MATRIX_MIN_MATRIX_H_
