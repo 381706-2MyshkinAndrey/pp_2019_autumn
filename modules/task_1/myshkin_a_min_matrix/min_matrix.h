@@ -7,7 +7,6 @@
 
 std::vector<int> getConsistentMatrix(int m, int n);
 std::vector<int> getRandomMatrix(int m, int n);
-int getSequentialMinMatrix(const std::vector<int> miv, int rows, int cols);  // miv - matrix in vector
-int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols);
+int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols);  // miv - matrix in vector
 
 #endif  // MODULES_TASK_1_MYSHKIN_A_MIN_MATRIX_MIN_MATRIX_H_

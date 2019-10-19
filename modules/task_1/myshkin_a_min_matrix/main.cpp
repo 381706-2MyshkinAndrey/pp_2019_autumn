@@ -21,7 +21,7 @@ TEST(Parallel_Min_Matrix_MPI, Test_On_Min_Matrix) {
   global_min = getParallelMinMatrix(global_matrix, rows_matrix_size, cols_matrix_size);
 
   if (rank == 0) {
-    int reference_min = getSequentialMinMatrix(global_matrix, rows_matrix_size, cols_matrix_size);
+    int reference_min = *std::min_element(global_matrix.begin(), global_matrix.end());
     ASSERT_EQ(global_min, reference_min);
   }
 }

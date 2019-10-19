@@ -32,18 +32,6 @@ std::vector<int> getRandomMatrix(int m, int n) {
 }
 
 
-int getSequentialMinMatrix(const std::vector<int> miv, int rows, int cols) {
-  if (static_cast<int>(miv.size()) != rows * cols)
-    throw std::runtime_error("Matrix dimensions are incorrect");
-  int sizem = rows * cols;
-  int min = miv[0];
-  for (int i = 0; i < sizem; i++) {
-    min = std::min(min, miv[i]);
-  }
-  return min;
-}
-
-
 int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols) {
   int size, rank;
   int result = 0;
@@ -59,7 +47,7 @@ int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols) {
 
   if (sizem < size) {
     if (rank == 0) {
-      result = getSequentialMinMatrix(miv, rows, cols);
+      result = *std::min_element(miv.begin(), miv.end());
       return result;
     } else {
       return result;
@@ -82,11 +70,11 @@ int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols) {
       MPI_Send(&miv[0] + proc * delta + remainder, delta, MPI_INT, proc, 0, MPI_COMM_WORLD);
     }
     std::vector<int> miv_L = std::vector<int>(miv.begin(), miv.begin() + delta + remainder);
-    min = getSequentialMinMatrix(miv_L, 1, delta + remainder);
+    min = *std::min_element(miv_L.begin(), miv_L.end());
   } else {
     MPI_Status Status;
     MPI_Recv(&buf1[0], delta, MPI_INT, 0, 0, MPI_COMM_WORLD, &Status);
-    min = getSequentialMinMatrix(buf1, 1, delta);
+    min = *std::min_element(buf1.begin(), buf1.end());
   }
 
   MPI_Reduce(&min, &result, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
