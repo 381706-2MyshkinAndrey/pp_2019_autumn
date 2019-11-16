@@ -4,7 +4,6 @@
 
 #include <mpi.h>
 
-
 int* getRandomArrayInt(int sizeA);  // for int
 double* getRandomArrayDouble(int sizeA);  // for double
 float* getRandomArrayFloat(int sizeA);  // for float
