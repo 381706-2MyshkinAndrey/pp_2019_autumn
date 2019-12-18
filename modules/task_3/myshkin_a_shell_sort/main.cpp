@@ -8,7 +8,7 @@
 #include "./shell_sort.h"
 
 
-TEST(Parallel_Shell_Sort, Test_First) {
+TEST(Parallel_Shell_Sort, Test_With_Min) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -32,7 +32,7 @@ TEST(Parallel_Shell_Sort, Test_First) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_Second) {
+TEST(Parallel_Shell_Sort, Test_With_Consistent_Array) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -58,7 +58,7 @@ TEST(Parallel_Shell_Sort, Test_Second) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_Three) {
+TEST(Parallel_Shell_Sort, Test_With_Const) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -79,7 +79,7 @@ TEST(Parallel_Shell_Sort, Test_Three) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_Four) {
+TEST(Parallel_Shell_Sort, Test_With_Large_Array) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -103,35 +103,44 @@ TEST(Parallel_Shell_Sort, Test_Four) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_Five) {
+TEST(Parallel_Shell_Sort, Test_With_Senq_Shell_First) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   const int length = 64;
   int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-  int min;
+  // int min;
+  int valSenq;
 
   if (rank == 0) {
     tmp = getRandomArray(length);
+    int *tmp1 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+    tmp1 = ShellSortSenq(tmp, length);
+    valSenq = tmp1[0];
+    free(tmp1);
   }
+
+  // if (rank == 0) {
+  //   tmp = getRandomArray(length);
+  // }
 
   tmp = parallelShellSort(tmp, length);
   int firstArray = tmp[0];
-  if (rank == 0) {
-    min = getMinArray(tmp, length);
-  }
+  // if (rank == 0) {
+  //   min = getMinArray(tmp, length);
+  // }
   free(tmp);
 
   if (rank == 0) {
-    ASSERT_EQ(firstArray, min);
+    ASSERT_EQ(firstArray, valSenq);
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_Six) {
+TEST(Parallel_Shell_Sort, Test_With_Senq_Shell_Second) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  const int length = 80;
+  const int length = 85;
   int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
   // int *tmp1 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
   int valSenq;
@@ -153,16 +162,11 @@ TEST(Parallel_Shell_Sort, Test_Six) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_Seven) {
+TEST(Parallel_Shell_Sort, Test_With_Any_Throw) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   const int length = 0;
-  int tmp[4];
-  tmp[0] = 45;
-  tmp[1] = 78;
-  tmp[2] = 36;
-  tmp[3] = 23;
 
   if (rank == 0) {
     ASSERT_ANY_THROW(getRandomArray(length));
