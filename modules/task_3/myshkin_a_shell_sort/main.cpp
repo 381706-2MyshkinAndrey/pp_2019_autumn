@@ -11,7 +11,7 @@
 TEST(Parallel_Shell_Sort, Test_First) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  
+
   int sts = 0;
   const int length = 10;
   int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
