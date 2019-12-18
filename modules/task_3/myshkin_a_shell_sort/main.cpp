@@ -80,6 +80,42 @@ TEST(Parallel_Shell_Sort, Test_Three) {
   }
 }
 
+TEST(Parallel_Shell_Sort, Test_Four) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  const int length = 100;
+  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+  int min;
+
+  if (rank == 0) {
+    tmp = getRandomArray(length);
+  }
+
+  tmp = parallelShellSort(tmp, length);
+  int firstArray = tmp[0];
+  if (rank == 0) {
+    min = getMinArray(tmp, length);
+  }
+  free(tmp);
+
+  if (rank == 0) {
+    ASSERT_EQ(firstArray, min);
+  }
+}
+
+TEST(Parallel_Shell_Sort, Test_Six) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  const int length = 0;
+  int tmp[10];
+
+  if (rank == 0) {
+    ASSERT_ANY_THROW(getRandomArray(length));
+  }
+}
+
   /*
 TEST(shell_sort, sort_decreasing_array) {
   int rank;
