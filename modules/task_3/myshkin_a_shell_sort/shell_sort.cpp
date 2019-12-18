@@ -9,7 +9,7 @@
 #include <utility>
 #include "../../../modules/task_3/myshkin_a_shell_sort/shell_sort.h"
 
-
+  /*
 void ownMergeBound(std::vector<int> &buffer, size_t left, size_t right, size_t middle) {
   if (left >= right || middle < left || middle > right) return;
   if (right == left + 1 && buffer[left] > buffer[right]) {
@@ -50,6 +50,7 @@ int mergeSort(std::vector<int> &buffer) {
   ownMergeSort(buffer, left, right);
   return 0;
 }
+  */
 
 std::vector<int> getRandomVector(int length) {
   if (length <= 0)
