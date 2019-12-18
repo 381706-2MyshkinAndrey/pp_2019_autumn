@@ -9,7 +9,7 @@
 #include <utility>
 #include "../../../modules/task_3/myshkin_a_shell_sort/shell_sort.h"
 
-int* getRandomArrayInt(int sizeA) {
+int* getRandomArray(int sizeA) {
   if (sizeA <= 0)
     throw std::runtime_error("Error Array size");
   std::mt19937 gen;
@@ -20,6 +20,17 @@ int* getRandomArrayInt(int sizeA) {
   }
   return localBuf;
 }
+
+int getMinArray(int* buffer, int sizeA) {
+  int min = buffer[0];
+  for (int i = 0; i < sizeA; i++) {
+    if (buffer[i] < min) {
+      min = buffer[i];
+    }
+  }
+  return min;
+}
+
 
 int* ShellSortSenq(int* buffer, int length) {
   int i, j, temp;
@@ -117,7 +128,7 @@ std::vector<int> ShellSortSenq(std::vector<int> buffer) {
   return buffer;
 }
 
-int* shell_sort(int* buffer, int length) {
+int* parallelShellSort(int* buffer, int length) {
   int size, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);

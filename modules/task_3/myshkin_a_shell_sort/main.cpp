@@ -8,6 +8,28 @@
 #include "./shell_sort.h"
 
 
+TEST(Parallel_Shell_Sort, Test_First) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  
+  int sts = 0;
+  const int length = 10;
+  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+
+  if (rank == 0) {
+    tmp = getRandomArray(length);
+  }
+
+  tmp = parallelShellSort(tmp, length);
+  int firstArray = tmp[0];
+  free(tmp);
+
+  if (rank == 0) {
+    int min = getMinArray(tmp, length);
+    ASSERT_EQ(firstArray, min);
+  }
+}
+
   /*
 TEST(shell_sort, sort_decreasing_array) {
   int rank;
