@@ -103,7 +103,7 @@ TEST(Parallel_Shell_Sort, Test_With_Large_Array) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_With_Senq_Shell_First) {
+TEST(Parallel_Shell_Sort, Test_With_Normal_Array) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
