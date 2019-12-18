@@ -53,7 +53,6 @@ TEST(Parallel_Shell_Sort, Test_With_Consistent_Array) {
   free(tmp);
 
   if (rank == 0) {
-    // int min = getMinArray(tmp, length);
     ASSERT_EQ(firstArray, min);
   }
 }
