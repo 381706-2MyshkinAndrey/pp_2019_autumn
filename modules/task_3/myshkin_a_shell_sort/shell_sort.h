@@ -11,9 +11,8 @@ int* ShellSortSenq(int* buffer, int length);
 std::vector<int> getRandomVector(int length);
 std::vector<int> ShellSortSenq(std::vector<int> buffer);
 
-
-std::vector<int> shell_sort(std::vector<int> array);
-  // std::vector<int> getParallelShellSort(std::vector<int> buffer);
+int* shell_sort(int* buffer, int length);
+  // std::vector<int> shell_sort(std::vector<int> array);
 
 
 #endif  // MODULES_TASK_3_MYSHKIN_A_SHELL_SORT_SHELL_SORT_H_

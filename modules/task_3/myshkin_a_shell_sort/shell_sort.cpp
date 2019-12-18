@@ -117,12 +117,12 @@ std::vector<int> ShellSortSenq(std::vector<int> buffer) {
   return buffer;
 }
 
-std::vector<int> shell_sort(std::vector<int> buffer) {
+int* shell_sort(int* buffer, int length) {
   int size, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  int sizeBuf = buffer.size();
+  int sizeBuf = length;
 
   if (sizeBuf <= 0) {
     throw std::runtime_error("Error size of array");
@@ -132,7 +132,7 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
     return buffer;
   }
 
-  // int sts = 0;
+  int sts = 0;
   int step = sizeBuf / 2;
   int sizeP, residue, sizeProc;
   int counter = 0;
@@ -146,7 +146,8 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
     }
 
     sizeProc = sizeBuf / step;
-    std::vector<int> bufForProc(sizeProc);
+    // std::vector<int> bufForProc(sizeProc);
+    int *bufForProc = reinterpret_cast<int*>(malloc(sizeProc * sizeof(int)));
 
     counter = 0;
 
@@ -154,13 +155,16 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
       if (counter + residue == step) { sizeP = residue; }
       for (int proc = 0; proc < sizeP; proc++) {
         if (rank == 0) {
-          bufForProc.clear();
+          // bufForProc.clear();
           for (int i = 0; i < sizeProc; i++) {
-            bufForProc.push_back(buffer[proc + counter + step * i]);
+            bufForProc[i] = buffer[proc + counter + step * i];
+            // bufForProc.push_back(buffer[proc + counter + step * i]);
           }
           if (proc == 0) {
             // sts = mergeSort(localArray);
-            bufForProc = ShellSortSenq(bufForProc);
+            sts = mergeSort(bufForProc, sizeProc);
+            if (sts == -1) { throw std::runtime_error("Error in Merge Sort"); }
+            // bufForProc = ShellSortSenq(bufForProc);
             for (int i = 0; i < sizeProc; i++) {
               buffer[counter + step * i] = bufForProc[i];
             }
@@ -171,8 +175,9 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
           if (rank == proc) {
             MPI_Status Status;
             MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, 0, 0, MPI_COMM_WORLD, &Status);
-            // sts = mergeSort(localArray);
-            bufForProc = ShellSortSenq(bufForProc);
+            sts = mergeSort(bufForProc, sizeProc);
+            if (sts == -1) { throw std::runtime_error("Error in Merge Sort"); }
+            // bufForProc = ShellSortSenq(bufForProc);
             MPI_Send(&bufForProc[0], sizeProc, MPI_INT, 0, proc, MPI_COMM_WORLD);
           }
         }
