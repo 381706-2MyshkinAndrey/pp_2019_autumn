@@ -6,11 +6,11 @@
 #include <ctime>
 #include <algorithm>
 #include <iostream>
+#include <utility>
 #include "../../../modules/task_3/myshkin_a_shell_sort/shell_sort.h"
 
 
-void ownMergeBound(std::vector<int> &buffer, size_t left, size_t right, size_t middle)
-{
+void ownMergeBound(std::vector<int> &buffer, size_t left, size_t right, size_t middle) {
   if (left >= right || middle < left || middle > right) return;
   if (right == left + 1 && buffer[left] > buffer[right]) {
     std::swap(buffer[left], buffer[right]);
@@ -22,19 +22,16 @@ void ownMergeBound(std::vector<int> &buffer, size_t left, size_t right, size_t m
   for (size_t i = left, j = 0, k = (middle - left + 1); i <= right; ++i) {
     if (j > middle - left) {
       buffer[i] = tmp[k++];
-    }
-    else if (k > right - left) {
+    } else if (k > right - left) {
       buffer[i] = tmp[j++];
-    }
-    else {
+    } else {
       buffer[i] = (tmp[j] < tmp[k]) ? tmp[j++] : tmp[k++];
     }
   }
   return;
 }
 
-void ownMergeSort(std::vector<int> &buffer, size_t left, size_t right)
-{
+void ownMergeSort(std::vector<int> &buffer, size_t left, size_t right) {
   if (left >= right) return;
 
   size_t middle = left + (right - left) / 2;
@@ -45,8 +42,7 @@ void ownMergeSort(std::vector<int> &buffer, size_t left, size_t right)
   return;
 }
 
-int mergeSort(std::vector<int> &buffer)
-{
+int mergeSort(std::vector<int> &buffer) {
   size_t size = buffer.size();
   if (size == 0) return -1;
   size_t left = 0, right = size - 1;
