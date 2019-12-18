@@ -64,7 +64,6 @@ TEST(Parallel_Shell_Sort, Test_Three) {
 
   const int length = 5;
   int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-
   tmp[0] = 9;
   tmp[1] = 11;
   tmp[2] = 6;
@@ -104,7 +103,7 @@ TEST(Parallel_Shell_Sort, Test_Four) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_Four) {
+TEST(Parallel_Shell_Sort, Test_Five) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -132,6 +131,32 @@ TEST(Parallel_Shell_Sort, Test_Six) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+  const int length = 80;
+  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+  // int *tmp1 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+  int valSenq;
+
+  if (rank == 0) {
+    tmp = getRandomArray(length);
+    int *tmp1 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+    tmp1 = ShellSortSenq(tmp, length);
+    valSenq = tmp1[0];
+    free(tmp1);
+  }
+
+  tmp = parallelShellSort(tmp, length);
+  int firstArray = tmp[0];
+  free(tmp);
+
+  if (rank == 0) {
+    ASSERT_EQ(firstArray, valSenq);
+  }
+}
+
+TEST(Parallel_Shell_Sort, Test_Seven) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   const int length = 0;
   int tmp[4];
   tmp[0] = 45;
@@ -144,137 +169,6 @@ TEST(Parallel_Shell_Sort, Test_Six) {
   }
 }
 
-  /*
-TEST(shell_sort, sort_decreasing_array) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-  std::vector<int> array = { 1, 2, 3, 4, 5, 6, 7 };
-
-  std::vector<int> sortArray = shell_sort(array);
-
-  if (rank == 0) {
-    ASSERT_EQ(sortArray[0], 1);
-  }
-}
-
-TEST(shell_sort, sort_decreasing_array2) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-  const int length = 100;
-  std::vector<int> array(length);
-
-  if (rank == 0) {
-    array = getRandomVector(length);
-  }
-
-  std::vector<int> sortArray = shell_sort(array);
-
-  if (rank == 0) {
-    // int senqVector = mergeSort(array);
-    std::vector<int> senqVector = ShellSortSenq(array);
-    ASSERT_EQ(sortArray, senqVector);
-  }
-}  */
-
-  /*
-TEST(Parallel_Shell_Sort, Test_On_Ordinary_Var1) {
-  int rank, size;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_rank(MPI_COMM_WORLD, &size);
-
-  const int length = 8;
-  std::vector<int> vectorTest(length);
-
-  if (rank == 0) {
-    vectorTest = getRandomVector(length);
-  }
-
-  vectorTest = getParallelShellSort(vectorTest);
-
-  if (rank == 0) {
-    std::vector<int> senqVector = mergeSort(vectorTest);
-    ASSERT_EQ(vectorTest, senqVector);
-  }
-}
-
-
-TEST(Parallel_Shell_Sort, Test_On_Ordinary_Var2) {
-  int rank, size;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_rank(MPI_COMM_WORLD, &size);
-
-  const int length = 11;
-  std::vector<int> vectorTest(length);
-
-  if (rank == 0) {
-    vectorTest = getRandomVector(length);
-  }
-
-  vectorTest = getParallelShellSort(vectorTest);
-
-  if (rank == 0) {
-    std::vector<int> senqVector = mergeSort(vectorTest);
-    ASSERT_EQ(vectorTest, senqVector);
-  }
-}  */
-
-  /********************************************
-TEST(Parallel_Shell_Sort, Test_On_Ordinary_Var3) {
-  int rank, size;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_rank(MPI_COMM_WORLD, &size);
-
-  const int length = 13;
-  std::vector<int> vectorTest(length);
-
-  if (rank == 0) {
-    vectorTest = getRandomVector(length);
-  }
-
-  vectorTest = getParallelShellSort(vectorTest);
-
-  if (rank == 0) {
-    std::vector<int> senqVector = mergeSort(vectorTest);
-    ASSERT_EQ(vectorTest[0], senqVector[0]);
-  }
-}  ***********************************************/
-
-  /*
-TEST(Parallel_Shell_Sort, Test_On_Large_Vector) {
-  int rank, size;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_rank(MPI_COMM_WORLD, &size);
-
-  const int length = 100;
-  std::vector<int> vectorTest(length);
-
-  if (rank == 0) {
-    vectorTest = getRandomVector(length);
-  }
-
-  vectorTest = getParallelShellSort(vectorTest);
-
-  if (rank == 0) {
-    std::vector<int> senqVector = mergeSort(vectorTest);
-    ASSERT_EQ(vectorTest, senqVector);
-  }
-}  */
-
-  /*
-TEST(Parallel_Shell_Sort, Test_With_Zero_Size) {
-  int rank, size;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_rank(MPI_COMM_WORLD, &size);
-
-  const int length = 0;
-  std::vector<int> vectorTest(length);
-
-  if (rank == 0) {
-    ASSERT_ANY_THROW(getRandomVector(length));
-  }
-}  */
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
