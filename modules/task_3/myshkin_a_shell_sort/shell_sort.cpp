@@ -198,7 +198,7 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
   int sts = 0;
   int op = buffer.size();
   int sizeLocalArray, countOp, countProc, count, count2;
-  int n = 0, countProcNum = 0;
+  int n = 0, counter = 0;
 
   while (op != 0) {
     op = op / 2;
@@ -208,24 +208,24 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
     count2 = countOp;
     if (countProc > 0)
       count2++;
-    n = 0, countProcNum = 0;
+    n = 0, counter = 0;
     sizeLocalArray = sizeArray / op;
     std::vector<int> localArray(sizeLocalArray);
     std::vector<int> localArrayForRoot(sizeLocalArray);
     do {
-      if (countProcNum + countProc == op)
+      if (counter + countProc == op)
         count = countProc;
       for (int proc = 0; proc < count; proc++) {
         if (rank == 0) {
           localArray.clear();
           for (int i = 0; i < sizeLocalArray; i++) {
-            localArray.push_back(buffer[proc + countProcNum + op * i]);
+            localArray.push_back(buffer[proc + counter + op * i]);
           }
           if (proc == 0) {
-            sts = mergeSort(localArray);
-            // localArray = mergeSort(localArray);
+            // sts = mergeSort(localArray);
+            localArray = ShellSortSenq(localArray);
             for (int i = 0; i < sizeLocalArray; i++) {
-              buffer[countProcNum + op * i] = localArray[i];
+              buffer[counter + op * i] = localArray[i];
             }
           } else {
             MPI_Send(&localArray[0], sizeLocalArray, MPI_INT, proc, n, MPI_COMM_WORLD);
@@ -235,35 +235,36 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
             MPI_Status status;
             MPI_Recv(&localArray[0], sizeLocalArray, MPI_INT, 0,
               n, MPI_COMM_WORLD, &status);
-            sts = mergeSort(localArray);
-            // localArray = mergeSort(localArray);
+            // sts = mergeSort(localArray);
+            localArray = ShellSortSenq(localArray);
             MPI_Send(&localArray[0], sizeLocalArray, MPI_INT, 0, proc + n, MPI_COMM_WORLD);
           }
         }
       }
-      countProcNum += size;
+      counter = counter + size;
+      // counter += size;
       n++;
-    } while (countProcNum < op);
+    } while (counter < op);
 
     count = op < size ? op : size;
-    countProcNum = 0;
+    counter = 0;
     n = 0;
 
     if (rank == 0) {
       do {
-        if (countProcNum + countProc == op)
+        if (counter + countProc == op)
           count = countProc;
         for (int proc = 1; proc < count; proc++) {
           MPI_Status status;
           MPI_Recv(&localArray[0], sizeLocalArray, MPI_INT, proc,
             proc + n, MPI_COMM_WORLD, &status);
           for (int i = 0; i < sizeLocalArray; i++) {
-            buffer[proc + op * i + countProcNum] = localArray[i];
+            buffer[proc + op * i + counter] = localArray[i];
           }
         }
-        countProcNum = countProcNum + size;
+        counter = counter + size;
         n++;
-      } while (countProcNum < op);
+      } while (counter < op);
     }
     if (sizeLocalArray == sizeArray)
       op = 0;
