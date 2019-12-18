@@ -22,10 +22,12 @@ TEST(Parallel_Shell_Sort, Test_First) {
 
   tmp = parallelShellSort(tmp, length);
   int firstArray = tmp[0];
+  if (rank == 0) {
+    min = getMinArray(tmp, length);
+  }
   free(tmp);
 
   if (rank == 0) {
-    min = getMinArray(tmp, length);
     ASSERT_EQ(firstArray, min);
   }
 }
@@ -51,7 +53,7 @@ TEST(Parallel_Shell_Sort, Test_Second) {
   free(tmp);
 
   if (rank == 0) {
-    //int min = getMinArray(tmp, length);
+    // int min = getMinArray(tmp, length);
     ASSERT_EQ(firstArray, min);
   }
 }
@@ -208,22 +210,7 @@ TEST(Parallel_Shell_Sort, Test_With_Zero_Size) {
   if (rank == 0) {
     ASSERT_ANY_THROW(getRandomVector(length));
   }
-}
-
-
-TEST(Parallel_Shell_Sort, Test_With_Consistent_Vector) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-  std::vector<int> vectorTest = { 6, 4, 3, 12, 10, 32, 76, 54 };
-
-  vectorTest = getParallelShellSort(vectorTest);
-
-  if (rank == 0) {
-    ASSERT_EQ(3, vectorTest[0]);
-  }
 }  */
-
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
