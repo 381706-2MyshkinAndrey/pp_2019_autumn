@@ -14,6 +14,7 @@ TEST(Parallel_Shell_Sort, Test_First) {
 
   const int length = 10;
   int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+  int min;
 
   if (rank == 0) {
     tmp = getRandomArray(length);
@@ -24,7 +25,7 @@ TEST(Parallel_Shell_Sort, Test_First) {
   free(tmp);
 
   if (rank == 0) {
-    int min = getMinArray(tmp, length);
+    min = getMinArray(tmp, length);
     ASSERT_EQ(firstArray, min);
   }
 }
@@ -35,7 +36,7 @@ TEST(Parallel_Shell_Sort, Test_Second) {
 
   const int length = 5;
   int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-
+  int min;
   tmp[0] = 9;
   tmp[1] = 11;
   tmp[2] = 6;
@@ -44,10 +45,13 @@ TEST(Parallel_Shell_Sort, Test_Second) {
 
   tmp = parallelShellSort(tmp, length);
   int firstArray = tmp[0];
+  if (rank == 0) {
+    min = getMinArray(tmp, length);
+  }
   free(tmp);
 
   if (rank == 0) {
-    int min = getMinArray(tmp, length);
+    //int min = getMinArray(tmp, length);
     ASSERT_EQ(firstArray, min);
   }
 }
