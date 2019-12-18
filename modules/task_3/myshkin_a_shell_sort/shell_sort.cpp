@@ -56,59 +56,51 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
     return buffer;
   }
 
-  // int sizeArray = sizeBuf;
-
   // int sts = 0;
   int step = sizeBuf / 2;
-  // int op = buffer.size();
-  int sizeLocalArray, countProc, sizeP;
-  // int count2;
-  // int countOp;
+  int sizeProc, residue, sizeP;
   int tag = 0, counter = 0;
 
-  while (step > 0) {  // op != 0
-    // op = op / 2;
-    // countOp = step / size;
-    countProc = step % size;
+  while (step > 0) {
+    residue = step % size;
     sizeP = step < size ? step : size;
-    // count2 = countOp;
-    // if (countProc > 0)
-    //  count2++;
+
     tag = 0, counter = 0;
-    sizeLocalArray = sizeBuf / step;
-    std::vector<int> localArray(sizeLocalArray);
-    std::vector<int> localArrayForRoot(sizeLocalArray);
+
+    sizeProc = sizeBuf / step;
+    std::vector<int> bufForProc(sizeProc);
+
+    // std::vector<int> localArrayForRoot(sizeLocalArray);
     do {
-      if (counter + countProc == step)
-        sizeP = countProc;
+      if (counter + residue == step)
+        sizeP = residue;
       for (int proc = 0; proc < sizeP; proc++) {
         if (rank == 0) {
-          localArray.clear();
-          for (int i = 0; i < sizeLocalArray; i++) {
-            localArray.push_back(buffer[proc + counter + step * i]);
+          bufForProc.clear();
+          for (int i = 0; i < sizeProc; i++) {
+            bufForProc.push_back(buffer[proc + counter + step * i]);
           }
           if (proc == 0) {
             // sts = mergeSort(localArray);
-            localArray = ShellSortSenq(localArray);
-            for (int i = 0; i < sizeLocalArray; i++) {
-              buffer[counter + step * i] = localArray[i];
+            bufForProc = ShellSortSenq(bufForProc);
+            for (int i = 0; i < sizeProc; i++) {
+              buffer[counter + step * i] = bufForProc[i];
             }
           } else {
-            MPI_Send(&localArray[0], sizeLocalArray, MPI_INT, proc, tag, MPI_COMM_WORLD);
+            MPI_Send(&bufForProc[0], sizeProc, MPI_INT, proc, tag, MPI_COMM_WORLD);
           }
         } else {
           if (rank == proc) {
             MPI_Status status;
-            MPI_Recv(&localArray[0], sizeLocalArray, MPI_INT, 0,
+            MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, 0,
               tag, MPI_COMM_WORLD, &status);
             // sts = mergeSort(localArray);
-            localArray = ShellSortSenq(localArray);
-            MPI_Send(&localArray[0], sizeLocalArray, MPI_INT, 0, proc + tag, MPI_COMM_WORLD);
+            bufForProc = ShellSortSenq(bufForProc);
+            MPI_Send(&bufForProc[0], sizeProc, MPI_INT, 0, proc + tag, MPI_COMM_WORLD);
           }
         }
       }
       counter = counter + size;
-      // counter += size;
       tag++;
     } while (counter < step);
 
@@ -118,23 +110,20 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
 
     if (rank == 0) {
       do {
-        if (counter + countProc == step)
-          sizeP = countProc;
+        if (counter + residue == step)
+          sizeP = residue;
         for (int proc = 1; proc < sizeP; proc++) {
           MPI_Status status;
-          MPI_Recv(&localArray[0], sizeLocalArray, MPI_INT, proc,
+          MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, proc,
             proc + tag, MPI_COMM_WORLD, &status);
-          for (int i = 0; i < sizeLocalArray; i++) {
-            buffer[proc + step * i + counter] = localArray[i];
+          for (int i = 0; i < sizeProc; i++) {
+            buffer[proc + step * i + counter] = bufForProc[i];
           }
         }
         counter = counter + size;
         tag++;
       } while (counter < step);
     }
-
-    // if (sizeLocalArray == sizeArray)
-    //   step = 0;
     step = step / 2;
   }
   return buffer;
