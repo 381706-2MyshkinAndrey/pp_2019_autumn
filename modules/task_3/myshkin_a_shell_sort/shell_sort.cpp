@@ -23,8 +23,8 @@ int* getRandomArray(int sizeA) {
 
 int getMinArray(int* buffer, int sizeA) {
   int min = buffer[0];
-  for (int i = 0; i < sizeA; i++) {
-    if (buffer[i] < min) {
+  for (int i = 1; i < sizeA; i++) {
+    if (min > buffer[i]) {
       min = buffer[i];
     }
   }

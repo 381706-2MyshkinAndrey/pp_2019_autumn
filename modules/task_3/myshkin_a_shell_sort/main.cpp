@@ -29,7 +29,7 @@ TEST(Parallel_Shell_Sort, Test_First) {
   }
 }
 
-TEST(Parallel_Shell_Sort, Test_First) {
+TEST(Parallel_Shell_Sort, Test_Second) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -42,10 +42,6 @@ TEST(Parallel_Shell_Sort, Test_First) {
   tmp[3] = 4;
   tmp[4] = 7;
 
-  // if (rank == 0) {
-  //   tmp = getRandomArray(length);
-  // }
-
   tmp = parallelShellSort(tmp, length);
   int firstArray = tmp[0];
   free(tmp);
@@ -53,6 +49,28 @@ TEST(Parallel_Shell_Sort, Test_First) {
   if (rank == 0) {
     int min = getMinArray(tmp, length);
     ASSERT_EQ(firstArray, min);
+  }
+}
+
+TEST(Parallel_Shell_Sort, Test_Three) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  const int length = 5;
+  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+
+  tmp[0] = 9;
+  tmp[1] = 11;
+  tmp[2] = 6;
+  tmp[3] = 4;
+  tmp[4] = 3;
+
+  tmp = parallelShellSort(tmp, length);
+  int firstArray = tmp[0];
+  free(tmp);
+
+  if (rank == 0) {
+    ASSERT_EQ(firstArray, 3);
   }
 }
 
