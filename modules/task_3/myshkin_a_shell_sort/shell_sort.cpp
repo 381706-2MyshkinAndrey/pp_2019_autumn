@@ -196,7 +196,7 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
 
   int sizeArray = buffer.size();
 
-  int sts = 0;
+  // int sts = 0;
   int op = buffer.size();
   int sizeLocalArray, countOp, countProc, count, count2;
   int n = 0, counter = 0;
