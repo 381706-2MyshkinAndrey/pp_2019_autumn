@@ -58,8 +58,7 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
 
   // int sts = 0;
   int step = sizeBuf / 2;
-  int sizeProc, residue, sizeP;
-  // int tag = 0;
+  int sizeP, residue, sizeProc;
   int counter = 0;
 
   while (step > 0) {
@@ -69,17 +68,14 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
     } else {
       sizeP = size;
     }
-    // sizeP = step < size ? step : size;
-
-    // tag = 0;
-    counter = 0;
 
     sizeProc = sizeBuf / step;
     std::vector<int> bufForProc(sizeProc);
 
+    counter = 0;
+
     while (counter <= step + sizeP - residue || counter <= step) {
-      if (counter + residue == step)
-        sizeP = residue;
+      if (counter + residue == step) { sizeP = residue; }
       for (int proc = 0; proc < sizeP; proc++) {
         if (rank == 0) {
           bufForProc.clear();
@@ -97,8 +93,8 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
           }
         } else {
           if (rank == proc) {
-            MPI_Status status;
-            MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+            MPI_Status Status;
+            MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, 0, 0, MPI_COMM_WORLD, &Status);
             // sts = mergeSort(localArray);
             bufForProc = ShellSortSenq(bufForProc);
             MPI_Send(&bufForProc[0], sizeProc, MPI_INT, 0, proc, MPI_COMM_WORLD);
@@ -106,7 +102,6 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
         }
       }
       counter = counter + size;
-      // tag++;
     }  // while (counter < step);
 
     if (size > step) {
@@ -114,23 +109,21 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
     } else {
       sizeP = size;
     }
-    // sizeP = step < size ? step : size;
+
     counter = 0;
-    // tag = 0;
+
     if (rank == 0) {
       while (counter <= step + sizeP - residue || counter <= step) {
-        if (counter + residue == step)
-          sizeP = residue;
+        if (counter + residue == step) { sizeP = residue; }
         for (int proc = 1; proc < sizeP; proc++) {
-          MPI_Status status;
+          MPI_Status Status;
           MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, proc,
-            proc, MPI_COMM_WORLD, &status);
+            proc, MPI_COMM_WORLD, &Status);
           for (int i = 0; i < sizeProc; i++) {
             buffer[proc + step * i + counter] = bufForProc[i];
           }
         }
         counter = counter + size;
-        // tag++;
       }  // while (counter < step);
     }
     step = step / 2;
