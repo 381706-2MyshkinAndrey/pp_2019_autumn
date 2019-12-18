@@ -63,7 +63,6 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
   int n = 0, counter = 0;
 
   while (step > 0) {  // op != 0
-
     // op = op / 2;
     countOp = step / size;
     countProc = step % size;
