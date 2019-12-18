@@ -41,8 +41,7 @@ int* ShellSortSenq(int* buffer, int length) {
   return buffer;
 }
 
-void ownMergeBound(int *buffer, int left, int right, int middle)
-{
+void ownMergeBound(int *buffer, int left, int right, int middle) {
   if (left >= right || middle < left || middle > right) return;
   if (right == left + 1 && buffer[left] > buffer[right]) {
     int value = buffer[right];
@@ -50,18 +49,16 @@ void ownMergeBound(int *buffer, int left, int right, int middle)
     buffer[left] = value;
     return;
   }
-  int *tmp = (int*)malloc(((right - left) + 1) * sizeof(int));
+  int *tmp = reinterpret_cast<int*>(malloc(((right - left) + 1) * sizeof(int)));
   if (tmp == nullptr) return;
   for (int i = 0; i < ((right - left) + 1); i++) tmp[i] = buffer[left + i];
 
   for (size_t i = left, j = 0, k = (middle - left + 1); i <= right; ++i) {
     if (j > middle - left) {
       buffer[i] = tmp[k++];
-    }
-    else if (k > right - left) {
+    } else if (k > right - left) {
       buffer[i] = tmp[j++];
-    }
-    else {
+    } else {
       buffer[i] = (tmp[j] < tmp[k]) ? tmp[j++] : tmp[k++];
     }
   }
@@ -70,8 +67,7 @@ void ownMergeBound(int *buffer, int left, int right, int middle)
   return;
 }
 
-void ownMergeSort(int *buffer, int left, int right)
-{
+void ownMergeSort(int *buffer, int left, int right) {
   if (left >= right) return;
 
   int middle = left + (right - left) / 2;
@@ -82,8 +78,7 @@ void ownMergeSort(int *buffer, int left, int right)
   return;
 }
 
-int mergeSort(int *buffer, int size)
-{
+int mergeSort(int *buffer, int size) {
   if ((buffer == nullptr) || (size < 2)) return -1;
   int left = 0, right = size - 1;
 

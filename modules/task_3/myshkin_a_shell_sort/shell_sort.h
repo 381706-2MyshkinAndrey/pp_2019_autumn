@@ -5,8 +5,12 @@
 #include <mpi.h>
 #include <vector>
 
+int* getRandomArrayInt(int sizeA);
+int* ShellSortSenq(int* buffer, int length);
+
 std::vector<int> getRandomVector(int length);
 std::vector<int> ShellSortSenq(std::vector<int> buffer);
+
 
 std::vector<int> shell_sort(std::vector<int> array);
   // std::vector<int> getParallelShellSort(std::vector<int> buffer);
