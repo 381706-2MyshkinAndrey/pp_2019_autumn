@@ -63,15 +63,19 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
 
   while (step > 0) {
     residue = step % size;
-    sizeP = step < size ? step : size;
+    if (size > step) {
+      sizeP = step;
+    } else {
+      sizeP = size;
+    }
+    // sizeP = step < size ? step : size;
 
     tag = 0, counter = 0;
 
     sizeProc = sizeBuf / step;
     std::vector<int> bufForProc(sizeProc);
 
-    // std::vector<int> localArrayForRoot(sizeLocalArray);
-    do {
+    while (counter <= step + sizeP - residue || counter <= step) {
       if (counter + residue == step)
         sizeP = residue;
       for (int proc = 0; proc < sizeP; proc++) {
@@ -102,14 +106,19 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
       }
       counter = counter + size;
       tag++;
-    } while (counter < step);
+    }  // while (counter < step);
 
-    sizeP = step < size ? step : size;
+    if (size > step) {
+      sizeP = step;
+    } else {
+      sizeP = size;
+    }
+    // sizeP = step < size ? step : size;
     counter = 0;
     tag = 0;
 
     if (rank == 0) {
-      do {
+      while (counter <= step + sizeP - residue || counter <= step) {
         if (counter + residue == step)
           sizeP = residue;
         for (int proc = 1; proc < sizeP; proc++) {
@@ -122,7 +131,7 @@ std::vector<int> shell_sort(std::vector<int> buffer) {
         }
         counter = counter + size;
         tag++;
-      } while (counter < step);
+      }  // while (counter < step);
     }
     step = step / 2;
   }
