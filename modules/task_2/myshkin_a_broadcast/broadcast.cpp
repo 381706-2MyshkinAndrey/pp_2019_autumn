@@ -3,53 +3,51 @@
 #include <random>
 #include <stdexcept>
 #include <ctime>
+#include <cmath>
 #include <algorithm>
 #include <iostream>
 #include "../../../modules/task_2/myshkin_a_broadcast/broadcast.h"
 
 
-int* getRandomArrayInt(int sizeA) {
-  if (sizeA <= 0)
+int* getRandomArrayInt(int* buffer, int size) {
+  if (size <= 0)
     throw std::runtime_error("Error Array size");
   std::mt19937 gen;
   gen.seed(static_cast<unsigned int>(time(0)));
-  int *localBuf = reinterpret_cast<int*>(malloc(sizeof(int) * sizeA));
-  for (int i = 0; i < sizeA; i++) {
-    localBuf[i] = gen() % 100;
+  for (int i = 0; i < size; i++) {
+      buffer[i] = gen() % 100;
   }
-  return localBuf;
+  return buffer;
 }
 
 
-double* getRandomArrayDouble(int sizeA) {
-  if (sizeA <= 0)
+double* getRandomArrayDouble(double* buffer, int size) {
+  if (size <= 0)
     throw std::runtime_error("Error Array size");
   std::mt19937 gen;
   gen.seed(static_cast<unsigned int>(time(0)));
-  double *localBuf = reinterpret_cast<double*>(malloc(sizeof(double) * sizeA));
-  for (int i = 0; i < sizeA; i++) {
-    localBuf[i] = gen() % 100;
+  for (int i = 0; i < size; i++) {
+      buffer[i] = gen() % 100;
   }
-  return localBuf;
+  return buffer;
 }
 
 
-float* getRandomArrayFloat(int sizeA) {
-  if (sizeA <= 0)
+float* getRandomArrayFloat(float* buffer, int size) {
+  if (size <= 0)
     throw std::runtime_error("Error Array size");
   std::mt19937 gen;
   gen.seed(static_cast<unsigned int>(time(0)));
-  float *localBuf = reinterpret_cast<float*>(malloc(sizeof(float) * sizeA));
-  for (int i = 0; i < sizeA; i++) {
-    localBuf[i] = gen() % 100;
+  for (int i = 0; i < size; i++) {
+      buffer[i] = gen() % 100;
   }
-  return localBuf;
+  return buffer;
 }
 
 
-int getMaxArrayInt(int* buffer, int sizeA) {
+int getMaxArrayInt(int* buffer, int size) {
   int max = buffer[0];
-  for (int i = 0; i < sizeA; i++) {
+  for (int i = 0; i < size; i++) {
     if (buffer[i] > max) {
       max = buffer[i];
     }
@@ -58,9 +56,9 @@ int getMaxArrayInt(int* buffer, int sizeA) {
 }
 
 
-double getMaxArrayDouble(double* buffer, int sizeA) {
+double getMaxArrayDouble(double* buffer, int size) {
   double max = buffer[0];
-  for (int i = 0; i < sizeA; i++) {
+  for (int i = 0; i < size; i++) {
     if (buffer[i] > max) {
       max = buffer[i];
     }
@@ -69,9 +67,9 @@ double getMaxArrayDouble(double* buffer, int sizeA) {
 }
 
 
-float getMaxArrayFloat(float* buffer, int sizeA) {
+float getMaxArrayFloat(float* buffer, int size) {
   float max = buffer[0];
-  for (int i = 0; i < sizeA; i++) {
+  for (int i = 0; i < size; i++) {
     if (buffer[i] > max) {
       max = buffer[i];
     }
@@ -99,4 +97,31 @@ void myBroadcast(void *buf, int count, MPI_Datatype type, int root, MPI_Comm com
     MPI_Status Status;
     MPI_Recv(buf, count, type, root, 1, comm, &Status);
   }
+}
+
+
+double logFromTwo(int number) {
+    double result = log(number) / log(2);
+    return result;
+}
+
+
+void myQuickBroadcast(void* data, int count, MPI_Datatype datatype, int root,
+    MPI_Comm comm) {
+    int size, rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    int tag = 1;
+    int stepCount = ceil(logFromTwo(size));
+
+    for (int step = 0; step < stepCount; step++) {
+        int value = pow(2, step);
+        if ((rank < value) && (value + rank < size)) {
+            MPI_Send(data, count, datatype, (value + rank), tag, comm);
+        }
+        else if (rank < (2 * value) && rank >= value) {
+            MPI_Status Status;
+            MPI_Recv(data, count, datatype, (rank - value), tag, comm, &Status);
+        }
+    }
 }

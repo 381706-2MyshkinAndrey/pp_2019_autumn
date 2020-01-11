@@ -9,7 +9,7 @@ int getRandomArray(int* buffer, int size);
 int sortingCheck(int* buffer1, int* buffer2, int size);
 
 int ShellSortSenq(int* buffer, int length);
-int mergeSort(int* buffer, unsigned int size);
+int mergeSort(int* buffer, int size);
 
 int parallelShellSort(int* buffer, int length);
 

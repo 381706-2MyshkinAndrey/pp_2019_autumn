@@ -8,12 +8,13 @@
 #include "./shell_sort.h"
 
 
-TEST(Parallel_Shell_Sort, Test_With_Min) {
+TEST(Parallel_Shell_Sort, Test_With_Shell_Sort) {
   int rank;
   int sts = 0;
   int sts2 = 0;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  
   const int length = 100000;
   int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
   int *tmp2 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
@@ -23,15 +24,7 @@ TEST(Parallel_Shell_Sort, Test_With_Min) {
     if (tmp && tmp2) {
         memcpy(tmp2, tmp, (sizeof(int) * length));
     }
-    // memcpy(tmp2, tmp, (sizeof(int) * length));
-    /*if (*tmp) {
-        for (int i = 0; i < length; i++) {
-            tmp2[i] = tmp[i];
-        }
-    }*/
-    /*for (int i = 0; i < length; i++) {
-        tmp2[i] = tmp[i];
-    }*/
+
     double start2 = MPI_Wtime();
     sts2 = ShellSortSenq(tmp2, length);
     double end2 = MPI_Wtime();
@@ -46,169 +39,160 @@ TEST(Parallel_Shell_Sort, Test_With_Min) {
       printf(" Time the Parallel Shell = %lf\n", end - start);
       sts = sortingCheck(tmp, tmp2, length);
   }
-
+  
   if (tmp) { free(tmp); tmp = nullptr; }
   if (tmp2) { free(tmp2); tmp2 = nullptr; }
-
+  
   if (rank == 0) {
       ASSERT_EQ(sts, 0);
   }
 }
 
-//TEST(Parallel_Shell_Sort, Test_With_Merge) {
-//    int rank;
-//    int sts = 0;
-//    int sts2 = 0;
-//    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//
-//    const int length = 140000;
-//    int* tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-//    int* tmp2 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-//    // int* min;
-//
-//    if (rank == 0) {
-//        sts = getRandomArray(tmp, length);
-//        // memcpy(tmp2, tmp, (sizeof(int) * length));
-//        /*if (*tmp) {
-//            for (int i = 0; i < length; i++) {
-//                tmp2[i] = tmp[i];
-//            }
-//        }*/
-//        for (int i = 0; i < length; i++) {
-//            tmp2[i] = tmp[i];
-//        }
-//        double start2 = MPI_Wtime();
-//        sts2 = mergeSort(tmp2, length);
-//        double end2 = MPI_Wtime();
-//        printf(" Time the Senq Merge = %lf\n", end2 - start2);
-//    }
-//
-//    double start = MPI_Wtime();
-//    sts = parallelShellSort(tmp, length);
-//    double end = MPI_Wtime();
-//
-//    if (rank == 0) {
-//        printf(" Time the Parallel Shell = %lf\n", end - start);
-//        sts = sortingCheck(tmp, tmp2, length);
-//        //sts = sortingCheck(tmp, length);
-//        //sts2 = sortingCheck(tmp2, length);
-//    }
-//    if (tmp) { free(tmp); tmp = nullptr; }
-//    if (tmp2) { free(tmp2); tmp2 = nullptr; }
-//    // free(tmp);
-//    // free(tmp2);
-//
-//    if (rank == 0) {
-//        ASSERT_EQ(sts, 0);
-//    }
-//}
 
+TEST(Parallel_Shell_Sort, Test_With_Merge_Sort) {
+    int rank;
+    int sts = 0;
+    int sts2 = 0;
 
-  /*
-TEST(Parallel_Shell_Sort, Test_With_Consistent_Array) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  const int length = 5;
-  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-  int min;
-  tmp[0] = 9;
-  tmp[1] = 11;
-  tmp[2] = 6;
-  tmp[3] = 4;
-  tmp[4] = 7;
+    const int length = 100000;
+    int* tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+    int* tmp2 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
 
-  tmp = parallelShellSort(tmp, length);
-  int firstArray = tmp[0];
-  if (rank == 0) {
-    min = getMinArray(tmp, length);
-  }
-  free(tmp);
+    if (rank == 0) {
+        sts = getRandomArray(tmp, length);
+        if (tmp && tmp2) {
+            memcpy(tmp2, tmp, (sizeof(int) * length));
+        }
 
-  if (rank == 0) {
-    ASSERT_EQ(firstArray, min);
-  }
+        double start2 = MPI_Wtime();
+        sts2 = mergeSort(tmp2, length);
+        double end2 = MPI_Wtime();
+        printf(" Time the Senq Shell = %lf\n", end2 - start2);
+    }
+
+    double start = MPI_Wtime();
+    sts = parallelShellSort(tmp, length);
+    double end = MPI_Wtime();
+
+    if (rank == 0) {
+        printf(" Time the Parallel Shell = %lf\n", end - start);
+        sts = sortingCheck(tmp, tmp2, length);
+    }
+
+    if (tmp) { free(tmp); tmp = nullptr; }
+    if (tmp2) { free(tmp2); tmp2 = nullptr; }
+
+    if (rank == 0) {
+        ASSERT_EQ(sts, 0);
+    }
 }
 
-TEST(Parallel_Shell_Sort, Test_With_Const) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  const int length = 5;
-  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-  tmp[0] = 9;
-  tmp[1] = 11;
-  tmp[2] = 6;
-  tmp[3] = 4;
-  tmp[4] = 3;
+TEST(Parallel_Shell_Sort, Test_With_Shell_Sort_1) {
+    int rank;
+    int sts = 0;
+    int sts2 = 0;
 
-  tmp = parallelShellSort(tmp, length);
-  int firstArray = tmp[0];
-  free(tmp);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  if (rank == 0) {
-    ASSERT_EQ(firstArray, 3);
-  }
+    const int length = 129999;
+    int* tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+    int* tmp2 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+
+    if (rank == 0) {
+        sts = getRandomArray(tmp, length);
+        if (tmp && tmp2) {
+            memcpy(tmp2, tmp, (sizeof(int) * length));
+        }
+
+        sts2 = ShellSortSenq(tmp2, length);
+    }
+
+    sts = parallelShellSort(tmp, length);
+
+    if (rank == 0) {
+        sts = sortingCheck(tmp, tmp2, length);
+    }
+
+    if (tmp) { free(tmp); tmp = nullptr; }
+    if (tmp2) { free(tmp2); tmp2 = nullptr; }
+
+    if (rank == 0) {
+        ASSERT_EQ(sts, 0);
+    }
 }
 
-TEST(Parallel_Shell_Sort, Test_With_Large_Array) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  const int length = 100;
-  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-  int min;
+TEST(Parallel_Shell_Sort, Test_With_Shell_Sort_2) {
+    int rank;
+    int sts = 0;
+    int sts2 = 0;
 
-  if (rank == 0) {
-    tmp = getRandomArray(length);
-  }
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  tmp = parallelShellSort(tmp, length);
-  int firstArray = tmp[0];
-  if (rank == 0) {
-    min = getMinArray(tmp, length);
-  }
-  free(tmp);
+    const int length = 10000;
+    int* tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+    int* tmp2 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
 
-  if (rank == 0) {
-    ASSERT_EQ(firstArray, min);
-  }
+    if (rank == 0) {
+        sts = getRandomArray(tmp, length);
+        if (tmp && tmp2) {
+            memcpy(tmp2, tmp, (sizeof(int) * length));
+        }
+
+        sts2 = ShellSortSenq(tmp2, length);
+    }
+
+    sts = parallelShellSort(tmp, length);
+
+    if (rank == 0) {
+        sts = sortingCheck(tmp, tmp2, length);
+    }
+
+    if (tmp) { free(tmp); tmp = nullptr; }
+    if (tmp2) { free(tmp2); tmp2 = nullptr; }
+
+    if (rank == 0) {
+        ASSERT_EQ(sts, 0);
+    }
 }
 
-TEST(Parallel_Shell_Sort, Test_With_Normal_Array) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  const int length = 64;
-  int *tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
-  int min;
+TEST(Parallel_Shell_Sort, Test_With_Shell_Sort_3) {
+    int rank;
+    int sts = 0;
+    int sts2 = 0;
 
-  if (rank == 0) {
-    tmp = getRandomArray(length);
-  }
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  tmp = parallelShellSort(tmp, length);
-  int firstArray = tmp[0];
-  if (rank == 0) {
-    min = getMinArray(tmp, length);
-  }
-  free(tmp);
+    const int length = 35687;
+    int* tmp = reinterpret_cast<int*>(malloc(length * sizeof(int)));
+    int* tmp2 = reinterpret_cast<int*>(malloc(length * sizeof(int)));
 
-  if (rank == 0) {
-    ASSERT_EQ(firstArray, min);
-  }
+    if (rank == 0) {
+        sts = getRandomArray(tmp, length);
+        if (tmp && tmp2) {
+            memcpy(tmp2, tmp, (sizeof(int) * length));
+        }
+
+        sts2 = ShellSortSenq(tmp2, length);
+    }
+
+    sts = parallelShellSort(tmp, length);
+
+    if (rank == 0) {
+        sts = sortingCheck(tmp, tmp2, length);
+    }
+
+    if (tmp) { free(tmp); tmp = nullptr; }
+    if (tmp2) { free(tmp2); tmp2 = nullptr; }
+
+    if (rank == 0) {
+        ASSERT_EQ(sts, 0);
+    }
 }
-
-TEST(Parallel_Shell_Sort, Test_With_Any_Throw) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-  const int length = 0;
-
-  if (rank == 0) {
-    ASSERT_ANY_THROW(getRandomArray(length));
-  }
-}  */
 
 
 int main(int argc, char** argv) {

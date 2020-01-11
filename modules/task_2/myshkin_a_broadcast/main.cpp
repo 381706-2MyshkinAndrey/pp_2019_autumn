@@ -7,6 +7,80 @@
 #include "./broadcast.h"
 
 
+TEST(Parrallel_Broadcast_MPI, Perfomance_Test_Common_Bcast) {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int countA = 1000;
+    int max;
+    int maxzero;
+    int result;
+
+    int* arrayInt = reinterpret_cast<int*>(malloc(sizeof(int) * countA));
+
+    if (rank == 0) {
+        arrayInt = getRandomArrayInt(arrayInt, countA);
+
+        maxzero = getMaxArrayInt(arrayInt, countA);
+        max = maxzero - 1;  // fake max of Array
+    }
+    else {
+        max = getMaxArrayInt(arrayInt, countA);
+    }
+    double start = MPI_Wtime();
+    myBroadcast(arrayInt, countA, MPI_INT, 0, MPI_COMM_WORLD);
+    double end = MPI_Wtime();
+
+    if (rank == 0) {
+        printf("Time working broadcast = %lf\n", end - start);
+    }
+
+    MPI_Reduce(&max, &result, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    free(arrayInt);
+    if (rank == 0) {
+        ASSERT_GE(maxzero, result);
+    }
+}
+
+
+TEST(Parrallel_Broadcast_MPI, Perfomance_Test_Accelerated_Bcast) {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int countA = 1000;
+    int max;
+    int maxzero;
+    int result;
+
+    int* arrayInt = reinterpret_cast<int*>(malloc(sizeof(int) * countA));
+
+    if (rank == 0) {
+        arrayInt = getRandomArrayInt(arrayInt, countA);
+
+        maxzero = getMaxArrayInt(arrayInt, countA);
+        max = maxzero - 1;  // fake max of Array
+    }
+    else {
+        max = getMaxArrayInt(arrayInt, countA);
+    }
+    double start = MPI_Wtime();
+    myQuickBroadcast(arrayInt, countA, MPI_INT, 0, MPI_COMM_WORLD);
+    double end = MPI_Wtime();
+
+    if (rank == 0) {
+        printf("Time working broadcast quick = %lf\n", end - start);
+    }
+
+    MPI_Reduce(&max, &result, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    free(arrayInt);
+    if (rank == 0) {
+        ASSERT_GE(maxzero, result);
+    }
+}
+
+
 TEST(Parrallel_Broadcast_MPI, Test_With_Int_n_Random) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -19,7 +93,7 @@ TEST(Parrallel_Broadcast_MPI, Test_With_Int_n_Random) {
   int* arrayInt = reinterpret_cast<int*>(malloc(sizeof(int) * countA));
 
   if (rank == 0) {
-    arrayInt = getRandomArrayInt(countA);
+    arrayInt = getRandomArrayInt(arrayInt, countA);
 
     maxzero = getMaxArrayInt(arrayInt, countA);
     max = maxzero - 1;  // fake max of Array
@@ -51,7 +125,7 @@ TEST(Parrallel_Broadcast_MPI, Test_With_Double_n_Random) {
   double* arrayDouble = reinterpret_cast<double*>(malloc(sizeof(double) * countA));
 
   if (rank == 0) {
-    arrayDouble = getRandomArrayDouble(countA);
+    arrayDouble = getRandomArrayDouble(arrayDouble, countA);
 
     maxzero = getMaxArrayDouble(arrayDouble, countA);
     max = maxzero - 1;  // fake max of Array
@@ -83,7 +157,7 @@ TEST(Parrallel_Broadcast_MPI, Test_With_Float_n_Random) {
   float* arrayFloat = reinterpret_cast<float*>(malloc(sizeof(float) * countA));
 
   if (rank == 0) {
-    arrayFloat = getRandomArrayFloat(countA);
+    arrayFloat = getRandomArrayFloat(arrayFloat, countA);
 
     maxzero = getMaxArrayFloat(arrayFloat, countA);
     max = maxzero - 1;  // fake max of Array

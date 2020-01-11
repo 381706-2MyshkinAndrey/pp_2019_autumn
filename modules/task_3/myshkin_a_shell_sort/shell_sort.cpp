@@ -6,7 +6,6 @@
 #include <ctime>
 #include <algorithm>
 #include <iostream>
-#include <utility>
 #include "../../../modules/task_3/myshkin_a_shell_sort/shell_sort.h"
 
 int getRandomArray(int* buffer, int size) {
@@ -61,35 +60,40 @@ int ShellSortSenq(int* buffer, int length) {
   return 0;
 }
 
-void ownMergeBound(int *buffer, unsigned int left, unsigned int right, unsigned int middle) {
-  if (left >= right || middle < left || middle > right) return;
-  if (right == left + 1 && buffer[left] > buffer[right]) {
-    int value = buffer[right];
-    buffer[right] = buffer[left];
-    buffer[left] = value;
-    return;
-  }
-  int *tmp = reinterpret_cast<int*>(malloc(((right - left) + 1) * sizeof(int)));
-  if (tmp == nullptr) return;
-  for (unsigned int i = 0; i < ((right - left) + 1); i++) tmp[i] = buffer[left + i];
 
-  for (unsigned int i = left, j = 0, k = (middle - left + 1); i <= right; ++i) {
-    if (j > middle - left) {
-      buffer[i] = tmp[k++];
-    } else if (k > right - left) {
-      buffer[i] = tmp[j++];
-    } else {
-      buffer[i] = (tmp[j] < tmp[k]) ? tmp[j++] : tmp[k++];
+void ownMergeBound(int* buffer, int left, int right, int middle)
+{
+    if (left >= right || middle < left || middle > right) return;
+    if (right == left + 1 && buffer[left] > buffer[right]) {
+        int value = buffer[right];
+        buffer[right] = buffer[left];
+        buffer[left] = value;
+        return;
     }
-  }
-  if (tmp) { free(tmp); tmp = nullptr; }
-  return;
+    int* tmp = (int*)malloc(((right - left) + 1) * sizeof(int));
+    if (tmp == nullptr) return;
+    for (int i = 0; i < ((right - left) + 1); i++) tmp[i] = buffer[left + i];
+
+    for (int i = left, j = 0, k = (middle - left + 1); i <= right; ++i) {
+        if (j > middle - left) {
+            buffer[i] = tmp[k++];
+        }
+        else if (k > right - left) {
+            buffer[i] = tmp[j++];
+        }
+        else {
+            buffer[i] = (tmp[j] < tmp[k]) ? tmp[j++] : tmp[k++];
+        }
+    }
+    if (tmp) { free(tmp); tmp = nullptr; }
+
+    return;
 }
 
-void ownMergeSort(int *buffer, unsigned int left, unsigned int right) {
+void ownMergeSort(int *buffer, int left, int right) {
   if (left >= right) return;
 
-  unsigned int middle = left + (right - left) / 2;
+  int middle = left + (right - left) / 2;
 
   ownMergeSort(buffer, left, middle);
   ownMergeSort(buffer, (middle + 1), right);
@@ -97,13 +101,14 @@ void ownMergeSort(int *buffer, unsigned int left, unsigned int right) {
   return;
 }
 
-int mergeSort(int *buffer, unsigned int size) {
+int mergeSort(int *buffer, int size) {
   if ((buffer == nullptr) || (size < 2)) return -1;
-  unsigned int left = 0, right = size - 1;
+  int left = 0, right = size - 1;
 
   ownMergeSort(buffer, left, right);
   return 0;
 }
+
 
 int parallelShellSort(int* buffer, int length) {
   int size, rank;
@@ -114,7 +119,6 @@ int parallelShellSort(int* buffer, int length) {
 
   if (sizeBuf <= 0) {
     return -1;
-    // throw std::runtime_error("Error size of array");
   }
 
   if (sizeBuf == 1) {
@@ -126,7 +130,7 @@ int parallelShellSort(int* buffer, int length) {
   int sizeP, residue;
   int sizeProc;
   int counter = 0;
-
+  
   while (step > 0) {
     residue = step % size;
     if (size > step) {
@@ -136,11 +140,12 @@ int parallelShellSort(int* buffer, int length) {
     }
 
     sizeProc = sizeBuf / step;
-    int *bufForProc = reinterpret_cast<int*>(malloc(sizeProc * sizeof(int)));
+    int* bufForProc = (int*)(malloc(sizeProc * sizeof(int)));
+    //int *bufForProc = reinterpret_cast<int*>(malloc(sizeProc * sizeof(int)));
 
     counter = 0;
 
-    while (counter <= step + sizeP - residue || counter <= step) {
+    while (counter < step + sizeP - residue || counter <= step) {
       if (counter + residue == step) { sizeP = residue; }
       for (int proc = 0; proc < sizeP; proc++) {
         if (rank == 0) {
@@ -148,29 +153,30 @@ int parallelShellSort(int* buffer, int length) {
             bufForProc[i] = buffer[proc + counter + step * i];
           }
           if (proc == 0) {
-            sts = ShellSortSenq(bufForProc, sizeProc);
-            // sts = mergeSort(bufForProc, sizeProc);
+            sts = mergeSort(bufForProc, sizeProc);
             if (sts == -1) {
                 return -1;
-                // throw std::runtime_error("Error in Merge Sort");
             }
             for (int i = 0; i < sizeProc; i++) {
               buffer[counter + step * i] = bufForProc[i];
             }
           } else {
             MPI_Send(&bufForProc[0], sizeProc, MPI_INT, proc, 0, MPI_COMM_WORLD);
+            /*printf("buf: ");
+            for (int j = 0; j < sizeProc; j++) {
+                if (j == (sizeProc - 1)) printf("%d\n", bufForProc[j]);
+                else printf("%d, ", bufForProc[j]);
+            }*/
           }
         } else {
-          if (rank == proc) {
+          if (proc == rank) {
             MPI_Status Status;
             MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, 0, 0, MPI_COMM_WORLD, &Status);
-            sts = ShellSortSenq(bufForProc, sizeProc);
-            // sts = mergeSort(bufForProc, sizeProc);
+            sts = mergeSort(bufForProc, sizeProc);
             if (sts == -1) {
                 return -1;
-                // throw std::runtime_error("Error in Merge Sort");
             }
-            MPI_Send(&bufForProc[0], sizeProc, MPI_INT, 0, proc, MPI_COMM_WORLD);
+            MPI_Send(&bufForProc[0], sizeProc, MPI_INT, 0, 0, MPI_COMM_WORLD);
           }
         }
       }
@@ -184,23 +190,24 @@ int parallelShellSort(int* buffer, int length) {
     }
 
     counter = 0;
-
-    if (rank == 0) {
-      while (counter <= step + sizeP - residue || counter <= step) {
-        if (counter + residue == step) { sizeP = residue; }
-        for (int proc = 1; proc < sizeP; proc++) {
-          MPI_Status Status;
-          MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, proc, proc, MPI_COMM_WORLD, &Status);
-          for (int i = 0; i < sizeProc; i++) {
-            buffer[proc + step * i + counter] = bufForProc[i];
+    
+   while (counter < step + sizeP - residue || counter <= step) {
+      if (counter + residue == step) { sizeP = residue; }
+      for (int proc = 1; proc < sizeP; proc++) {
+          if (rank == 0) {
+              MPI_Status Status;
+              MPI_Recv(&bufForProc[0], sizeProc, MPI_INT, proc, 0, MPI_COMM_WORLD, &Status);
+              for (int i = 0; i < sizeProc; i++) {
+                  buffer[proc + step * i + counter] = bufForProc[i];
+              }
           }
-        }
+       }
         counter = counter + size;
-      }
     }
     step = step / 2;
-    free(bufForProc);
+    if (bufForProc) { free(bufForProc); bufForProc = nullptr; }
   }
 
   return 0;
 }
+

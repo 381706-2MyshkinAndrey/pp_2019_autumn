@@ -54,17 +54,6 @@ int getParallelMinMatrix(const std::vector<int> miv, int rows, int cols) {
     }
   }
 
-
-  if (rank == 0) {
-    if (static_cast<int>(miv.size()) != rows * cols) {
-      int error = -1;
-      for (int proc = 1; proc < size; proc++)
-        MPI_Send(&error, 1, MPI_INT, proc, -1, MPI_COMM_WORLD);
-      throw std::runtime_error("Matrix dimensions are incorrect");
-    }
-  }
-
-
   if (rank == 0) {
     for (int proc = 1; proc < size; proc++) {
       MPI_Send(&miv[0] + proc * delta + remainder, delta, MPI_INT, proc, 0, MPI_COMM_WORLD);
