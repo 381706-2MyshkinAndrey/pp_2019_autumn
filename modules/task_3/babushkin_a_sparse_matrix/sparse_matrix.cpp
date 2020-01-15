@@ -220,11 +220,11 @@ std::vector<double> multiply(SparseMatrix* A, SparseMatrix* B) {
 
   if (rank == comm_size - 1) {
     MPI_Send(&local_result[local_result.size() - (rem * B->m_columns) - 1],
-             rem * B->m_columns, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+             rem * B->m_columns + 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
   }
   if (rank == 0) {
     MPI_Recv(&global_result[(A->m_rows - rem) * B->m_columns - 1],
-             rem * B->m_columns, MPI_DOUBLE, comm_size - 1, 0, MPI_COMM_WORLD,
+             rem * B->m_columns + 1, MPI_DOUBLE, comm_size - 1, 0, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
   }
 
